@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Max-F-Helm/docker-socket-firewall/internal/opa"
 	"archive/tar"
 	"bufio"
 	"bytes"
@@ -10,12 +11,10 @@ import (
 	"flag"
 	"github.com/docker/go-connections/sockets"
 	"github.com/h2non/filetype"
-	"github.com/linead/docker-socket-firewall/pkg/opa"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/xi2/xz"
 	"golang.org/x/net/context/ctxhttp"
-	"gopkg.in/h2non/filetype.v1/matchers"
+	"github.com/h2non/filetype/matchers"
 	"io"
 	"io/ioutil"
 	"net"
@@ -24,6 +23,7 @@ import (
 	"os"
 	"regexp"
 	"time"
+	"fmt"
 )
 
 var opaHandler opa.DockerHandler
@@ -297,7 +297,7 @@ func listenAndServe(sockPath string) error {
 	http.HandleFunc("/", handleRequestAndRedirect)
 	l, err := net.Listen("unix", sockPath)
 	if err != nil {
-		return errors.Wrap(err, "failed to listen")
+		return fmt.Errorf("failed to listen: %w", err)
 	}
 
 	os.Chmod(sockPath, 0777)

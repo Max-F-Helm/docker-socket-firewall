@@ -75,8 +75,7 @@ func processPolicy(ctx context.Context, policyFile string, policyPath string, in
 		return false, err
 	}
 
-	pretty, _ := json.MarshalIndent(input, "", "  ")
-	log.Debugf("Querying OPA policy %v. Input: %s", policyPath, pretty)
+	log.WithFields(log.Fields{"input": input}).Debugf("Querying OPA policy %v", policyPath)
 	allowed, err := func() (bool, error) {
 
 		eval := rego.New(
@@ -89,7 +88,8 @@ func processPolicy(ctx context.Context, policyFile string, policyPath string, in
 		if err != nil {
 			return false, err
 		}
-
+		log.Debugf("Output: %+v", rs)
+		
 		if len(rs) == 0 {
 			// Decision is undefined. Fallback to deny.
 			return false, nil
@@ -109,6 +109,8 @@ func processPolicy(ctx context.Context, policyFile string, policyPath string, in
 	}
 
 	log.Debugf("Returning OPA policy decision: %v", allowed)
+	log.Debugf(" ")
+
 	return allowed, nil
 }
 
